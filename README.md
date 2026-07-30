@@ -38,6 +38,22 @@ Issuing, so the write shapes could not be checked the way the statuses were.
 mode.** `mode` defaults to `:test`, and `describe` reports
 `:write-paths-unexercised true` so a caller cannot mistake this for proven.
 
+That run is now written and waiting for a key:
+
+```bash
+STRIPE_TEST_KEY=sk_test_... clojure -M:exercise
+```
+
+It creates a cardholder, issues a virtual card, then activates, blocks and closes it,
+printing each request and answer — the point is to learn whether the SHAPES are right,
+and a green run that printed nothing would leave this section just as unproven.
+
+**It cannot touch live.** `mode` is no longer a note: a key whose own prefix disagrees
+with the mode is refused before a request is built, by the same check the provider uses.
+`sk_live_` here is refused, and so is a test key on a `:live` provider — the first would
+issue real cards while every log said test, the second would do nothing real while a
+deployment believed it was issuing.
+
 ## The state mapping, published rather than absorbed
 
 `kotoba.card.actuation/state-mapping-complete?` requires a provider to account for
@@ -100,7 +116,7 @@ refuses rather than sending an unauthenticated request.
 ## Run
 
 ```bash
-clojure -M:test    # 34 tests / 123 assertions — no network, no key needed
+clojure -M:test    # 40 tests / 141 assertions — no network, no key needed
 clojure -M:lint    # clj-kondo, 0 errors 0 warnings
 ```
 
@@ -125,7 +141,7 @@ call, which is what makes the "refuses before calling" guarantee testable at all
 |---|---|
 | Role | provider (`:provider` in the stack-tier vocabulary) |
 | Contract implemented | `kotoba.card.actuation` (post-approval) |
-| Tests | 34 tests / 123 assertions, all green — recorded transport only, plus the state mapping incl. the `inactive` collision |
+| Tests | 40 tests / 141 assertions, all green — recorded transport only, plus the state mapping incl. the `inactive` collision |
 | Lint | clj-kondo 0 errors, 0 warnings |
 | Read paths | shapes verified against the live spec |
 | **Write paths** | **unexercised — not yet run against Stripe test mode** |

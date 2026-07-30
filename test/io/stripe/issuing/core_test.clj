@@ -226,3 +226,50 @@
         res (t :get "/v1/issuing/cards" nil nil)]
     (is (= 0 (:status res)))
     (is (re-find #"未設定" (:error res)))))
+
+;; ---------------------------------------------------------------------------
+;; mode is a constraint, not a note
+;; ---------------------------------------------------------------------------
+
+(deftest a-key-declares-its-own-mode
+  (testing "Stripe's own prefixes, not a convention invented here -- which is what
+            makes this checkable instead of a matter of trust"
+    (is (= :test (stripe/key-mode "sk_test_abc")))
+    (is (= :live (stripe/key-mode "sk_live_abc")))
+    (is (= :test (stripe/key-mode "rk_test_abc")) "restricted keys split the same way")
+    (is (= :live (stripe/key-mode "rk_live_abc")))
+    (is (nil? (stripe/key-mode "pk_test_abc")) "a publishable key is not a secret key")
+    (is (nil? (stripe/key-mode "")) )
+    (is (nil? (stripe/key-mode nil)))))
+
+(deftest a-test-provider-refuses-a-live-key
+  (testing "the dangerous direction: it would issue REAL cards while every log line
+            said test"
+    (let [r (stripe/mode-mismatch :test "sk_live_abc")]
+      (is (some? r))
+      (is (= 0 (:status r)))
+      (is (re-find #"live" (:error r))))))
+
+(deftest a-live-provider-refuses-a-test-key
+  (testing "the quiet direction, and still wrong: nothing real happens while a
+            deployment believes it is issuing"
+    (is (some? (stripe/mode-mismatch :live "sk_test_abc")))))
+
+(deftest an-unrecognised-key-is-refused-rather-than-attempted
+  (testing "a truncated or pasted-wrong key must not reach Stripe to find out"
+    (is (some? (stripe/mode-mismatch :test "sk_abc")))
+    (is (some? (stripe/mode-mismatch :test "")))
+    (is (some? (stripe/mode-mismatch :test nil)))))
+
+(deftest a-matching-key-is-not-refused
+  (is (nil? (stripe/mode-mismatch :test "sk_test_abc")))
+  (is (nil? (stripe/mode-mismatch :live "sk_live_abc"))))
+
+(deftest the-mismatch-is-caught-before-anything-is-sent
+  (testing "through the transport itself: HOME is set and is not a Stripe key, so the
+            mode check refuses it and no HTTP request is attempted"
+    (let [t (stripe/http-transport "HOME" :test)
+          r (t :post "/v1/issuing/cards" {} "idem-1")]
+      (is (= 0 (:status r)))
+      (is (re-find #"prefix" (:error r))
+          "an unrecognised key is named as such rather than sent to Stripe to find out"))))
