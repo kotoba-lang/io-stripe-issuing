@@ -79,18 +79,61 @@
 ;; transport
 ;; ---------------------------------------------------------------------------
 
+(defn key-mode
+  "Which Stripe mode a secret key belongs to, from its own prefix: :test, :live, or nil
+  when it is neither (an unrecognised or truncated key).
+
+  Stripe prefixes are not a convention this library invented -- sk_test_ and sk_live_
+  are how Stripe itself distinguishes them, which is what makes this checkable rather
+  than a matter of trust."
+  [key]
+  (cond
+    (nil? key) nil
+    (str/starts-with? key "sk_test_") :test
+    (str/starts-with? key "sk_live_") :live
+    (str/starts-with? key "rk_test_") :test        ; restricted keys, same split
+    (str/starts-with? key "rk_live_") :live
+    :else nil))
+
+(defn mode-mismatch
+  "A refusal when `key` does not belong to `mode`, or nil when it does.
+
+  The docstring on `provider` used to say 'nothing here enforces which key you supply;
+  the field records intent'. Recording intent is not a safeguard: a provider built with
+  :test and handed a live key would issue real cards while every log line said test.
+  The reverse is quieter and still wrong -- a :live provider on a test key does nothing
+  real while a deployment believes it is issuing.
+
+  Checked BEFORE the request is built, so a mismatch never reaches the network."
+  [mode key]
+  (let [actual (key-mode key)]
+    (cond
+      (nil? actual)
+      {:status 0 :error (str "Stripe の secret key の prefix が sk_test_ / sk_live_ の"
+                             "いずれでもありません（切り詰められた値か、別種の鍵）")}
+      (not= mode actual)
+      {:status 0 :error (str "mode " mode " の provider に " actual " の鍵が渡されました。"
+                             "実行前に拒否します — mode は意図の記録ではなく制約です")}
+      :else nil)))
+
 (defn http-transport
   "The real transport. Returns (fn [method path body idempotency-key] -> response-map).
 
   `secret-key-env` names the environment variable holding the key; the key is read
   at call time and never stored on the record, so a provider value cannot leak one
-  by being printed."
-  ([secret-key-env] (http-transport secret-key-env default-client))
-  ([secret-key-env ^HttpClient client]
+  by being printed.
+
+  The key's own prefix must agree with `mode`, and disagreement refuses before the
+  request is built -- see `mode-mismatch`."
+  ([secret-key-env] (http-transport secret-key-env :test default-client))
+  ([secret-key-env mode] (http-transport secret-key-env mode default-client))
+  ([secret-key-env mode ^HttpClient client]
    (fn [method path body idempotency-key]
      (let [key (System/getenv secret-key-env)]
-       (if (str/blank? (str key))
-         {:status 0 :error (str secret-key-env " が未設定です")}
+       (if-let [refusal (or (when (str/blank? (str key))
+                              {:status 0 :error (str secret-key-env " が未設定です")})
+                            (mode-mismatch mode key))]
+         refusal
          (try
            (let [payload (when body (form-encode body))
                  builder (-> (HttpRequest/newBuilder (URI/create (str api-base path)))
@@ -242,12 +285,15 @@
                     Defaults to the real HTTP transport reading :secret-key-env.
     :secret-key-env -- env var holding the Stripe secret key (default
                     STRIPE_SECRET_KEY). Read at call time, never stored.
-    :mode        -- :test (default) or :live. Nothing here enforces which key you
-                    supply; the field records intent so a caller can refuse to run
-                    a live provider by accident, and `describe` reports it."
+    :mode        -- :test (default) or :live, and it is ENFORCED against the key's own
+                    prefix rather than merely recorded. A :test provider handed an
+                    sk_live_ key refuses before any request is built, and so does a
+                    :live provider handed a test key -- the first would issue real cards
+                    while every log said test, the second would do nothing real while a
+                    deployment believed it was issuing."
   [& {:keys [transport secret-key-env mode]
       :or {secret-key-env "STRIPE_SECRET_KEY" mode :test}}]
-  (->StripeIssuing (or transport (http-transport secret-key-env)) mode))
+  (->StripeIssuing (or transport (http-transport secret-key-env mode)) mode))
 
 (defn describe
   "What this provider is, for a log or an operator screen. Carries no secret --

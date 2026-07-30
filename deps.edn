@@ -10,7 +10,11 @@
         {:git/url "https://github.com/kotoba-lang/card.git"
          :git/sha "62d9ea207a717e213177450d5538d8491fee8295"}}
  :aliases
- {:dev {:override-deps
+ {;; clojure -M:exercise -- run the write paths against Stripe TEST MODE once.
+  ;; Needs STRIPE_TEST_KEY (sk_test_…). It cannot touch live: the mode check refuses a
+  ;; key whose own prefix disagrees, before any request is built.
+  :exercise {:main-opts ["-m" "io.stripe.issuing.exercise"]}
+  :dev {:override-deps
         {io.github.kotoba-lang/card {:local/root "../card"}}}
   :test {:extra-paths ["test"]
          :extra-deps {io.github.cognitect-labs/test-runner
