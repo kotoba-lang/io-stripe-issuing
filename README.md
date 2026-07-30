@@ -100,7 +100,7 @@ refuses rather than sending an unauthenticated request.
 ## Run
 
 ```bash
-clojure -M:test    # 21 tests / 73 assertions — no network, no key needed
+clojure -M:test    # 34 tests / 123 assertions — no network, no key needed
 clojure -M:lint    # clj-kondo, 0 errors 0 warnings
 ```
 
@@ -125,7 +125,7 @@ call, which is what makes the "refuses before calling" guarantee testable at all
 |---|---|
 | Role | provider (`:provider` in the stack-tier vocabulary) |
 | Contract implemented | `kotoba.card.actuation` (post-approval) |
-| Tests | 21 tests / 73 assertions, all green — recorded transport only |
+| Tests | 34 tests / 123 assertions, all green — recorded transport only, plus the state mapping incl. the `inactive` collision |
 | Lint | clj-kondo 0 errors, 0 warnings |
 | Read paths | shapes verified against the live spec |
 | **Write paths** | **unexercised — not yet run against Stripe test mode** |
