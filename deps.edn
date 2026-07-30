@@ -1,0 +1,22 @@
+{:paths ["src"]
+ ;; The contract this implements lives in kotoba-lang/card. Named by git
+ ;; coordinate, not :local/root -- a provider that cannot be consumed from outside
+ ;; a monorepo checkout is not a provider (measured across this family 2026-07-30).
+ ;; JVM-only provider: java.net.http for the transport, data.json to read
+ ;; Stripe's responses. The contract library it implements is portable .cljc; this
+ ;; provider is not, and does not pretend to be.
+ :deps {org.clojure/data.json {:mvn/version "2.5.1"}
+        io.github.kotoba-lang/card
+        {:git/url "https://github.com/kotoba-lang/card.git"
+         :git/sha "62d9ea207a717e213177450d5538d8491fee8295"}}
+ :aliases
+ {:dev {:override-deps
+        {io.github.kotoba-lang/card {:local/root "../card"}}}
+  :test {:extra-paths ["test"]
+         :extra-deps {io.github.cognitect-labs/test-runner
+                      {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
+         :main-opts ["-m" "cognitect.test-runner"]
+         :exec-fn cognitect.test-runner.api/test}
+  :lint {:replace-deps {clj-kondo/clj-kondo {:mvn/version "2024.11.14"}}
+         :main-opts ["-m" "clj-kondo.main" "--lint" "src" "test"
+                     "--fail-level" "error"]}}}
