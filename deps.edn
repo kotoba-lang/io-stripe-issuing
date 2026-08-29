@@ -5,7 +5,7 @@
  ;; JVM-only provider: java.net.http for the transport, data.json to read
  ;; Stripe's responses. The contract library it implements is portable .cljc; this
  ;; provider is not, and does not pretend to be.
- :deps {org.clojure/data.json {:mvn/version "2.5.1"}
+ :deps {io.github.kotoba-lang/json {:git/sha "b47b06486b3ad53051bc7d8bf361f4176f467202"}
         io.github.kotoba-lang/card
         {:git/url "https://github.com/kotoba-lang/card.git"
          :git/sha "62d9ea207a717e213177450d5538d8491fee8295"}}

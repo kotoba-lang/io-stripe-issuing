@@ -30,7 +30,7 @@
   Every write goes through `actuation/precheck` FIRST: an approval naming both who
   and what, plus a caller-supplied idempotency key. A provider that reached the
   network and then discovered the approval was unnamed would already have acted."
-  (:require [clojure.data.json :as json]
+  (:require [json.data-json :as json]
             [clojure.string :as str]
             [kotoba.card.actuation :as actuation]
             [kotoba.card.lifecycle :as lifecycle]
