@@ -31,7 +31,7 @@
   and what, plus a caller-supplied idempotency key. A provider that reached the
   network and then discovered the approval was unnamed would already have acted."
   (:require [json.data-json :as json]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [kotoba.card.actuation :as actuation]
             [kotoba.card.lifecycle :as lifecycle]
             [io.stripe.issuing.state :as state])
