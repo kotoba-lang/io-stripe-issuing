@@ -30,7 +30,7 @@
 ;;   kotoba -M compile --module-lock /tmp/kotoba.modules.edn --blocks /tmp/blocks \
 ;;     --target js-browser --output /tmp/state.mjs
 ;;
-;; `test/io/stripe/issuing/state_kotoba_parity_test.clj` does exactly that and
+;; `test/io/stripe/issuing/state_kotoba_parity_test.cljk` does exactly that and
 ;; REFUSES rather than skipping when the sibling is not there.
 ;;
 ;; ## Design changes
