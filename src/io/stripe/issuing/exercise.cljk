@@ -28,7 +28,7 @@
   It is not a test and is not in the suite: it needs a key and a network, and a suite
   that quietly did nothing without them would be worse than one that never claimed to.
 
-  Run:  STRIPE_TEST_KEY=sk_test_... clojure -M:exercise"
+  Run:  STRIPE_TEST_KEY=sk_test_... kbb -M:exercise"
   (:require [clojure.pprint :as pp]
             [io.stripe.issuing.core :as core]
             [kotoba.card.actuation :as actuation]))

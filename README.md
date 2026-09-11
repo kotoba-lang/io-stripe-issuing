@@ -41,7 +41,7 @@ mode.** `mode` defaults to `:test`, and `describe` reports
 That run is now written and waiting for a key:
 
 ```bash
-STRIPE_TEST_KEY=sk_test_... clojure -M:exercise
+STRIPE_TEST_KEY=sk_test_... kbb -M:exercise
 ```
 
 It creates a cardholder, issues a virtual card, then activates, blocks and closes it,
@@ -116,8 +116,8 @@ refuses rather than sending an unauthenticated request.
 ## Run
 
 ```bash
-clojure -M:test    # 40 tests / 141 assertions — no network, no key needed
-clojure -M:lint    # clj-kondo, 0 errors 0 warnings
+kbb -M:test    # 40 tests / 141 assertions — no network, no key needed
+kbb -M:lint    # clj-kondo, 0 errors 0 warnings
 ```
 
 Every test drives a **recorded transport** that answers from a map and records each
