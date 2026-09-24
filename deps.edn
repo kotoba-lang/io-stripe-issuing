@@ -6,6 +6,13 @@
  ;; Stripe's responses. The contract library it implements is portable .cljc; this
  ;; provider is not, and does not pretend to be.
  :deps {
+        ;; kotoba.http.form-urlencoded replaced java.net.URLEncoder/URLDecoder here
+        ;; (2026-09-24). An explicit floor: tools.deps takes the NEWEST sha it is shown.
+        io.github.kotoba-lang/http-parse-url {:git/sha "8ad2f9680111e50168b4078a64601dc9296158d7"}
+        ;; kotoba.pprint replaced clojure.pprint here (2026-09-24): the same
+        ;; bytes (cljs.pprint transcribed). An explicit floor; tools.deps takes the
+        ;; NEWEST sha it is shown.
+        io.github.kotoba-lang/pprint {:git/sha "5c9d4aea71d6caac529fffcf361aba0f87ee485e"}
         ;; kotoba.test (clojure.test-compatible surface), not clojure.test --
         ;; scripts/migrate-clojure-test-to-kotoba-test.cljk. Explicit floor.
         io.github.kotoba-lang/test {:git/url "https://github.com/kotoba-lang/test.git"
