@@ -3,7 +3,7 @@
   nothing needs a Stripe key -- which is also what makes the guards testable: the
   point of `precheck` is that it refuses BEFORE a call would be made, and the only
   way to prove that is to assert no call was recorded."
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [kotoba.card.actuation :as actuation]
             [kotoba.card.lifecycle :as lifecycle]
             [io.stripe.issuing.core :as stripe]
