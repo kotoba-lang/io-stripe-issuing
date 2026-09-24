@@ -30,7 +30,7 @@
   Every write goes through `actuation/precheck` FIRST: an approval naming both who
   and what, plus a caller-supplied idempotency key. A provider that reached the
   network and then discovered the approval was unnamed would already have acted."
-  (:require [json.data-json :as json]
+  (:require [kotoba.http.form-urlencoded :as form-urlencoded] [json.data-json :as json]
             [kotoba.lang.text :as str]
             [kotoba.card.actuation :as actuation]
             [kotoba.card.lifecycle :as lifecycle]
@@ -53,7 +53,7 @@
 ;; ---------------------------------------------------------------------------
 
 (defn- enc [s]
-  (java.net.URLEncoder/encode (str s) "UTF-8"))
+  (form-urlencoded/form-encode (str s)))
 
 (defn form-encode
   "Encode a nested map the way Stripe expects: name[child]=value.

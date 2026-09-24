@@ -29,7 +29,7 @@
   that quietly did nothing without them would be worse than one that never claimed to.
 
   Run:  STRIPE_TEST_KEY=sk_test_... kbb -M:exercise"
-  (:require [clojure.pprint :as pp]
+  (:require [kotoba.pprint :as pp]
             [io.stripe.issuing.core :as core]
             [kotoba.card.actuation :as actuation]))
 
