@@ -15,7 +15,7 @@
   and until now no test would have noticed it being changed to return one value.
 
   Every expectation was measured from the namespace before being written down."
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [io.stripe.issuing.state :as state]
             [kotoba.card.lifecycle :as lifecycle]))
 
